@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAccount, useChainId, useSwitchChain, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { BotchainNFTABI } from '@/abi/BotchainNFT';
 import { envConfig } from '@/config/env';
-import confetti from 'canvas-confetti';
 import {
   Upload,
   Sparkles,
@@ -14,11 +13,10 @@ import {
   ExternalLink,
   Plus,
   Trash2,
-  RefreshCw,
   Loader2,
   Bot,
-  Flame,
   Zap,
+  X,
 } from 'lucide-react';
 
 // Preset Cyber Bot avatars (SVG data URIs for instant preview and fallback)
@@ -50,19 +48,22 @@ const PRESET_BOTS = [
 ];
 
 interface MinterProps {
-  contractAddress: string;
   onMintSuccess?: () => void;
-  onOpenContractModal: () => void;
 }
 
-export const Minter: React.FC<MinterProps> = ({
-  contractAddress,
-  onMintSuccess,
-  onOpenContractModal,
-}) => {
-  const { address, isConnected } = useAccount();
+interface SuccessToastState {
+  show: boolean;
+  tokenId?: string;
+  txHash?: string;
+}
+
+export const Minter: React.FC<MinterProps> = ({ onMintSuccess }) => {
+  const { isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
+
+  // Contract address is strictly pulled from centralized env config
+  const contractAddress = envConfig.contractAddress;
 
   // Form State
   const [name, setName] = useState('Cyber Sentinel #1');
@@ -81,15 +82,18 @@ export const Minter: React.FC<MinterProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  // Clean Toast Notification State (replaces canvas-confetti)
+  const [toast, setToast] = useState<SuccessToastState>({ show: false });
+
   const isCorrectChain = chainId === envConfig.chainId;
 
   // Read mint price from contract
   const { data: mintPriceData } = useReadContract({
-    address: (contractAddress || '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    address: contractAddress,
     abi: BotchainNFTABI,
     functionName: 'mintPrice',
     query: {
-      enabled: Boolean(contractAddress && contractAddress.startsWith('0x')),
+      enabled: envConfig.isContractConfigured,
     },
   });
 
@@ -97,10 +101,10 @@ export const Minter: React.FC<MinterProps> = ({
   const mintPriceBot = formatEther(mintPriceWei);
 
   // Wagmi Write Contract Hook
-  const { data: hash, isPending: isWritePending, writeContract, reset: resetWrite } = useWriteContract();
+  const { data: hash, isPending: isWritePending, writeContract } = useWriteContract();
 
   // Transaction confirmation hook
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
   });
 
@@ -153,6 +157,11 @@ export const Minter: React.FC<MinterProps> = ({
     setErrorMessage('');
     setStatusMessage('');
 
+    if (!envConfig.isContractConfigured) {
+      setErrorMessage('App not configured — contact the site owner.');
+      return;
+    }
+
     if (!isConnected) {
       setErrorMessage('Please connect your wallet first.');
       return;
@@ -165,12 +174,6 @@ export const Minter: React.FC<MinterProps> = ({
         setErrorMessage(`Please switch to ${envConfig.chainName} in your wallet.`);
         return;
       }
-    }
-
-    if (!contractAddress || !contractAddress.startsWith('0x')) {
-      setErrorMessage('Please configure or deploy an NFT contract first.');
-      onOpenContractModal();
-      return;
     }
 
     try {
@@ -227,7 +230,7 @@ export const Minter: React.FC<MinterProps> = ({
         const metaData = await metaRes.json();
         tokenURI = metaData.tokenURI || `ipfs://${metaData.ipfsHash}`;
       } else {
-        // Fallback to data URI if Pinata JWT is omitted in testing
+        // Fallback to data URI if Pinata is offline
         const encoded = encodeURIComponent(JSON.stringify(metadataPayload));
         tokenURI = `data:application/json;utf8,${encoded}`;
       }
@@ -238,7 +241,7 @@ export const Minter: React.FC<MinterProps> = ({
       // Step 4: Call contract mint()
       writeContract(
         {
-          address: contractAddress as `0x${string}`,
+          address: contractAddress,
           abi: BotchainNFTABI,
           functionName: 'mint',
           args: [tokenURI],
@@ -263,23 +266,81 @@ export const Minter: React.FC<MinterProps> = ({
     }
   };
 
-  // Trigger celebration on transaction confirmation
-  React.useEffect(() => {
-    if (isConfirmed) {
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 },
-        colors: ['#22c55e', '#00f0ff', '#ffb703', '#ffffff'],
+  // Trigger minimal clean success toast upon transaction receipt confirmation
+  useEffect(() => {
+    if (isConfirmed && hash) {
+      setStatusMessage('');
+      
+      // Extract minted token ID from Transfer event topic if available
+      let extractedTokenId: string | undefined;
+      if (receipt?.logs && receipt.logs.length > 0) {
+        try {
+          const transferLog = receipt.logs.find(
+            (log) =>
+              log.topics[0]?.toLowerCase() ===
+              '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'.toLowerCase()
+          );
+          if (transferLog && transferLog.topics[3]) {
+            extractedTokenId = BigInt(transferLog.topics[3]).toString();
+          }
+        } catch {
+          // Fallback if log format differs
+        }
+      }
+
+      setToast({
+        show: true,
+        tokenId: extractedTokenId,
+        txHash: hash,
       });
+
       if (onMintSuccess) {
         onMintSuccess();
       }
     }
-  }, [isConfirmed, onMintSuccess]);
+  }, [isConfirmed, hash, receipt, onMintSuccess]);
 
   return (
-    <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-white/10 glow-box">
+    <div className="relative glass-panel rounded-3xl p-6 sm:p-8 border border-white/10 glow-box">
+      {/* Minimal Clean Success Toast / Notification */}
+      {toast.show && (
+        <div className="fixed top-6 right-6 z-50 max-w-md w-full sm:w-auto transition-all duration-300 animate-in fade-in slide-in-from-top-4">
+          <div className="p-4 rounded-2xl bg-[#0b0e14]/95 backdrop-blur-xl border border-emerald-500/40 shadow-2xl shadow-emerald-500/10 flex items-start gap-3">
+            <div className="p-1 rounded-lg bg-emerald-500/20 text-emerald-400 mt-0.5">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+
+            <div className="flex-1 pr-2">
+              <h4 className="text-sm font-bold text-white">
+                NFT Minted Successfully! {toast.tokenId ? `Token #${toast.tokenId}` : ''}
+              </h4>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Your NFT is now live on the {envConfig.chainName}.
+              </p>
+
+              {toast.txHash && (
+                <a
+                  href={`${envConfig.explorerUrl}/tx/${toast.txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-mono mt-2 transition"
+                >
+                  <span>View transaction on BohrScan</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
+
+            <button
+              onClick={() => setToast({ show: false })}
+              className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Left Column: Artwork Preview & Selection */}
         <div className="w-full lg:w-5/12 flex flex-col items-center">
@@ -450,28 +511,6 @@ export const Minter: React.FC<MinterProps> = ({
               <div className="p-3 mb-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-400 flex-shrink-0" />
                 <span>{statusMessage}</span>
-              </div>
-            )}
-
-            {/* Transaction Success Banner */}
-            {isConfirmed && hash && (
-              <div className="p-4 mb-3 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200">
-                <div className="flex items-center gap-2 font-bold text-sm">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  <span>NFT Minted on Botchain Testnet!</span>
-                </div>
-                <div className="mt-2 text-xs flex items-center gap-2">
-                  <span>View on BohrScan:</span>
-                  <a
-                    href={`${envConfig.explorerUrl}/tx/${hash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-emerald-300 font-mono hover:text-white flex items-center gap-1"
-                  >
-                    <span>{hash.slice(0, 10)}...{hash.slice(-8)}</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
               </div>
             )}
 

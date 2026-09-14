@@ -14,6 +14,11 @@ export const envConfig = {
   
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID || '',
   contractAddress: (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '') as `0x${string}`,
+  isContractConfigured: Boolean(
+    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS &&
+    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.startsWith('0x') &&
+    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.length === 42
+  ),
   
   pinataGateway: (process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud/ipfs/').replace(/\/$/, '') + '/',
   isPinataServerConfigured: Boolean(process.env.PINATA_JWT),

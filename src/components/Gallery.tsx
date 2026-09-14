@@ -19,18 +19,19 @@ import {
 } from 'lucide-react';
 
 interface GalleryProps {
-  contractAddress: string;
   onOpenMinter?: () => void;
   refreshKey?: number;
 }
 
 export const Gallery: React.FC<GalleryProps> = ({
-  contractAddress,
   onOpenMinter,
   refreshKey = 0,
 }) => {
   const { address, isConnected } = useAccount();
   const publicClient = usePublicClient();
+
+  // Contract address is strictly pulled from centralized env config
+  const contractAddress = envConfig.contractAddress;
 
   const [activeTab, setActiveTab] = useState<'all' | 'my'>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,11 +44,11 @@ export const Gallery: React.FC<GalleryProps> = ({
 
   // Read total supply from contract
   const { data: totalSupplyData, refetch: refetchSupply } = useReadContract({
-    address: (contractAddress || '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    address: contractAddress,
     abi: BotchainNFTABI,
     functionName: 'totalSupply',
     query: {
-      enabled: Boolean(contractAddress && contractAddress.startsWith('0x')),
+      enabled: envConfig.isContractConfigured,
     },
   });
 
@@ -55,12 +56,12 @@ export const Gallery: React.FC<GalleryProps> = ({
 
   // Read user balance
   const { data: userBalanceData, refetch: refetchUserBalance } = useReadContract({
-    address: (contractAddress || '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    address: contractAddress,
     abi: BotchainNFTABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
     query: {
-      enabled: Boolean(contractAddress && contractAddress.startsWith('0x') && address),
+      enabled: Boolean(envConfig.isContractConfigured && address),
     },
   });
 

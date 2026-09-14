@@ -3,14 +3,9 @@
 import React from 'react';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { envConfig } from '@/config/env';
-import { Bot, ExternalLink, AlertTriangle, CheckCircle2, FileCode2 } from 'lucide-react';
+import { Bot, ExternalLink, AlertTriangle } from 'lucide-react';
 
-interface NavbarProps {
-  contractAddress: string;
-  onOpenContractModal: () => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ contractAddress, onOpenContractModal }) => {
+export const Navbar: React.FC = () => {
   const { isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
@@ -40,20 +35,6 @@ export const Navbar: React.FC<NavbarProps> = ({ contractAddress, onOpenContractM
 
         {/* Center / Right controls */}
         <div className="flex items-center gap-3">
-          {/* Contract Address Status */}
-          <button
-            onClick={onOpenContractModal}
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-300 transition"
-            title="Configure or Deploy Contract"
-          >
-            <FileCode2 className="w-4 h-4 text-emerald-400" />
-            <span>
-              {contractAddress
-                ? `${contractAddress.slice(0, 6)}...${contractAddress.slice(-4)}`
-                : 'Set Contract'}
-            </span>
-          </button>
-
           {/* Network Switch Prompt (if wrong chain) */}
           {isConnected && !isCorrectNetwork && (
             <button
