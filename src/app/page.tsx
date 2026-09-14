@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Minter } from '@/components/Minter';
 import { Gallery } from '@/components/Gallery';
@@ -13,12 +13,12 @@ export default function Home() {
   const minterRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
 
-  const handleMintSuccess = () => {
+  const handleMintSuccess = useCallback(() => {
     setRefreshGalleryKey((prev) => prev + 1);
     if (galleryRef.current) {
       galleryRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, []);
 
   const scrollToMinter = () => {
     if (minterRef.current) {

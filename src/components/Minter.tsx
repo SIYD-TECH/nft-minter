@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAccount, useChainId, useSwitchChain, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { BotchainNFTABI } from '@/abi/BotchainNFT';
@@ -266,9 +266,13 @@ export const Minter: React.FC<MinterProps> = ({ onMintSuccess }) => {
     }
   };
 
+  // Ref to track confirmed transaction hash and prevent infinite re-renders
+  const handledTxRef = useRef<string | null>(null);
+
   // Trigger minimal clean success toast upon transaction receipt confirmation
   useEffect(() => {
-    if (isConfirmed && hash) {
+    if (isConfirmed && hash && handledTxRef.current !== hash) {
+      handledTxRef.current = hash;
       setStatusMessage('');
       
       // Extract minted token ID from Transfer event topic if available
