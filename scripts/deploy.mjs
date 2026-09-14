@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 // Helper to read .env or .env.local
 function loadEnv() {
   const envPath = resolve(__dirname, '../.env.local');
-  const env: Record<string, string> = {};
+  const env = {};
   if (existsSync(envPath)) {
     const lines = readFileSync(envPath, 'utf8').split('\n');
     for (const line of lines) {
@@ -37,11 +37,14 @@ async function main() {
   const chainName = env.NEXT_PUBLIC_CHAIN_NAME || 'Botchain Testnet';
   const currencySymbol = env.NEXT_PUBLIC_CURRENCY_SYMBOL || 'BOT';
 
-  const privateKey = process.env.PRIVATE_KEY || env.PRIVATE_KEY;
-  if (!privateKey || !privateKey.startsWith('0x')) {
-    console.error('❌ Error: PRIVATE_KEY is missing or invalid in .env.local or environment.');
+  let privateKey = process.env.PRIVATE_KEY || env.PRIVATE_KEY;
+  if (!privateKey) {
+    console.error('❌ Error: PRIVATE_KEY is missing in .env.local or environment.');
     console.error('Please set PRIVATE_KEY=0x... in .env.local with your testnet BOT deployer wallet.');
     process.exit(1);
+  }
+  if (!privateKey.startsWith('0x')) {
+    privateKey = `0x${privateKey}`;
   }
 
   const botchain = defineChain({
@@ -53,7 +56,7 @@ async function main() {
     },
   });
 
-  const account = privateKeyToAccount(privateKey as `0x${string}`);
+  const account = privateKeyToAccount(privateKey);
   console.log(`🔑 Deployer Address: ${account.address}`);
 
   const publicClient = createPublicClient({
