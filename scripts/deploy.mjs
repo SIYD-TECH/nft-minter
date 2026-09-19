@@ -32,15 +32,28 @@ async function main() {
 
   const env = loadEnv();
 
-  const rpcUrl = env.NEXT_PUBLIC_RPC_URL || 'https://rpc.bohr.life';
-  const chainId = Number(env.NEXT_PUBLIC_CHAIN_ID || 968);
-  const chainName = env.NEXT_PUBLIC_CHAIN_NAME || 'Botchain Testnet';
+  const isMainnet = process.argv.includes('--network') && 
+    (process.argv.includes('mainnet') || process.argv.includes('botchainMainnet'));
+
+  const rpcUrl = isMainnet
+    ? (process.env.MAINNET_RPC_URL || env.MAINNET_RPC_URL)
+    : (env.NEXT_PUBLIC_RPC_URL || 'https://rpc.bohr.life');
+
+  const chainId = isMainnet
+    ? Number(process.env.MAINNET_CHAIN_ID || env.MAINNET_CHAIN_ID)
+    : Number(env.NEXT_PUBLIC_CHAIN_ID || 968);
+
+  const chainName = isMainnet ? 'Botchain Mainnet' : (env.NEXT_PUBLIC_CHAIN_NAME || 'Botchain Testnet');
   const currencySymbol = env.NEXT_PUBLIC_CURRENCY_SYMBOL || 'BOT';
 
-  let privateKey = process.env.PRIVATE_KEY || env.PRIVATE_KEY;
+  let privateKey = isMainnet
+    ? (process.env.MAINNET_PRIVATE_KEY || env.MAINNET_PRIVATE_KEY)
+    : (process.env.PRIVATE_KEY || env.PRIVATE_KEY);
+
   if (!privateKey) {
-    console.error('❌ Error: PRIVATE_KEY is missing in .env.local or environment.');
-    console.error('Please set PRIVATE_KEY=0x... in .env.local with your testnet BOT deployer wallet.');
+    const varName = isMainnet ? 'MAINNET_PRIVATE_KEY' : 'PRIVATE_KEY';
+    console.error(`❌ Error: ${varName} is missing in .env.local or environment.`);
+    console.error(`Please set ${varName}=0x... in .env.local with your deployer wallet.`);
     process.exit(1);
   }
   if (!privateKey.startsWith('0x')) {
