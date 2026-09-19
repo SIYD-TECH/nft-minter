@@ -42,7 +42,7 @@ module.exports = {
       url: process.env.MAINNET_RPC_URL,
       chainId: Number(process.env.MAINNET_CHAIN_ID),
       accounts: process.env.MAINNET_PRIVATE_KEY 
-        ? [process.env.MAINNET_PRIVATE_KEY] 
+        ? [process.env.MAINNET_PRIVATE_KEY.startsWith('0x') ? process.env.MAINNET_PRIVATE_KEY : `0x${process.env.MAINNET_PRIVATE_KEY}`] 
         : [],
     },
   },

@@ -30,12 +30,14 @@
     "wagmi": "^2.19.5"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^26.5.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.6.0",
+    "hardhat": "^2.22.18",
     "postcss": "^8.5.28",
     "solc": "^0.8.37",
     "tailwindcss": "^4.3.3",
