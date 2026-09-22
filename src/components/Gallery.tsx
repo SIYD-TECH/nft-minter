@@ -300,7 +300,7 @@ export const Gallery: React.FC<GalleryProps> = ({
       {isLoading ? (
         <div className="py-20 flex flex-col items-center justify-center text-center">
           <Loader2 className="w-10 h-10 animate-spin text-emerald-400 mb-3" />
-          <p className="text-sm text-gray-300 font-medium">Querying Botchain Testnet...</p>
+          <p className="text-sm text-gray-300 font-medium">Querying {envConfig.chainName}...</p>
           <p className="text-xs text-gray-500 mt-1">Resolving IPFS metadata and token states</p>
         </div>
       ) : filteredNFTs.length > 0 ? (
@@ -326,7 +326,7 @@ export const Gallery: React.FC<GalleryProps> = ({
               ? 'Try searching with a different token ID or keyword.'
               : activeTab === 'my'
               ? 'Mint an NFT to view it in your personal collection.'
-              : 'Be the first pioneer to mint an NFT on the Botchain Testnet!'}
+              : `Be the first pioneer to mint an NFT on the ${envConfig.chainName}!`}
           </p>
           {onOpenMinter && (
             <button

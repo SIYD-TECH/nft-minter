@@ -34,13 +34,13 @@ module.exports = {
       chainId: 31337,
     },
     botchainTestnet: {
-      url: process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.bohr.life',
-      chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID || 968),
+      url: process.env.TESTNET_RPC_URL || 'https://rpc.bohr.life',
+      chainId: Number(process.env.TESTNET_CHAIN_ID || 968),
       accounts,
     },
     botchainMainnet: {
-      url: process.env.MAINNET_RPC_URL,
-      chainId: Number(process.env.MAINNET_CHAIN_ID),
+      url: process.env.MAINNET_RPC_URL || 'https://rpc.botchain.ai',
+      chainId: Number(process.env.MAINNET_CHAIN_ID || 677),
       accounts: process.env.MAINNET_PRIVATE_KEY 
         ? [process.env.MAINNET_PRIVATE_KEY.startsWith('0x') ? process.env.MAINNET_PRIVATE_KEY : `0x${process.env.MAINNET_PRIVATE_KEY}`] 
         : [],

@@ -125,7 +125,7 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="text-base font-bold text-gray-300 hover:text-emerald-400 flex items-center gap-1"
                   >
-                    <span>BohrScan</span>
+                    <span>{envConfig.explorerName}</span>
                     <ExternalLink className="w-3 h-3 text-gray-500" />
                   </a>
                 </div>
@@ -160,10 +160,10 @@ export default function Home() {
               rel="noopener noreferrer"
               className="hover:text-emerald-400 transition"
             >
-              BohrScan Explorer
+              {envConfig.explorerName} Explorer
             </a>
             <a
-              href="https://rpc.bohr.life"
+              href={envConfig.rpcUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-emerald-400 transition"

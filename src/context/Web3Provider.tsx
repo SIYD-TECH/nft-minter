@@ -6,19 +6,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { State, WagmiProvider } from 'wagmi';
 import { wagmiAdapter, projectId } from '@/config/wagmi';
 import { botchainTestnet } from '@/config/chains';
+import { envConfig } from '@/config/env';
 
 // Set up React Query client
 const queryClient = new QueryClient();
 
 // Configure metadata
 const metadata = {
-  name: 'Botchain NFT Minter & Gallery',
-  description: 'Mint and view NFTs on the Botchain Testnet',
-  url: typeof window !== 'undefined' ? window.location.origin : 'https://bohr.life',
-  icons: ['https://scan.bohr.life/favicon.ico'],
+  name: `${envConfig.chainName} NFT Minter & Gallery`,
+  description: `Mint and view NFTs on the ${envConfig.chainName}`,
+  url: typeof window !== 'undefined' ? window.location.origin : envConfig.explorerUrl,
+  icons: [`${envConfig.explorerUrl}/favicon.ico`],
 };
 
-// Initialize AppKit with Botchain testnet
+// Initialize AppKit with configured network
 createAppKit({
   adapters: [wagmiAdapter],
   projectId,

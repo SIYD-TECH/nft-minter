@@ -1,7 +1,7 @@
 import { defineChain } from 'viem';
 import { envConfig } from './env';
 
-export const botchainTestnet = defineChain({
+export const botchainChain = defineChain({
   id: envConfig.chainId,
   name: envConfig.chainName,
   nativeCurrency: {
@@ -19,9 +19,12 @@ export const botchainTestnet = defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'BohrScan',
+      name: envConfig.explorerName,
       url: envConfig.explorerUrl,
     },
   },
-  testnet: true,
+  testnet: envConfig.isTestnet,
 });
+
+// Backwards compatibility alias
+export const botchainTestnet = botchainChain;

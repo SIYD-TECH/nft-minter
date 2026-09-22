@@ -3,14 +3,29 @@
  * Ensures zero hardcoded network, contract, or IPFS values across the app
  */
 
+const rawChainId = Number(
+  process.env.NEXT_PUBLIC_CHAIN_ID || 
+  process.env.MAINNET_CHAIN_ID || 
+  677
+);
+
+const isTestnet = rawChainId === 968 || (process.env.NEXT_PUBLIC_CHAIN_NAME || '').toLowerCase().includes('testnet');
+
+const defaultChainName = isTestnet ? 'Botchain Testnet' : 'BOT Chain Mainnet';
+const defaultRpcUrl = isTestnet ? 'https://rpc.bohr.life' : 'https://rpc.botchain.ai';
+const defaultExplorerUrl = isTestnet ? 'https://scan.bohr.life' : 'https://scan.botchain.ai';
+const defaultExplorerName = isTestnet ? 'BohrScan' : 'BotchainScan';
+
 export const envConfig = {
-  chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID || 968),
-  chainName: process.env.NEXT_PUBLIC_CHAIN_NAME || 'Botchain Testnet',
-  rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.bohr.life',
-  explorerUrl: (process.env.NEXT_PUBLIC_EXPLORER_URL || 'https://scan.bohr.life').replace(/\/$/, ''),
+  chainId: rawChainId,
+  chainName: process.env.NEXT_PUBLIC_CHAIN_NAME || defaultChainName,
+  rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || (isTestnet ? defaultRpcUrl : (process.env.MAINNET_RPC_URL || defaultRpcUrl)),
+  explorerUrl: (process.env.NEXT_PUBLIC_EXPLORER_URL || defaultExplorerUrl).replace(/\/$/, ''),
+  explorerName: process.env.NEXT_PUBLIC_EXPLORER_NAME || defaultExplorerName,
   currencyName: process.env.NEXT_PUBLIC_CURRENCY_NAME || 'BOT',
   currencySymbol: process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || 'BOT',
   currencyDecimals: Number(process.env.NEXT_PUBLIC_CURRENCY_DECIMALS || 18),
+  isTestnet,
   
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID || '',
   contractAddress: (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '') as `0x${string}`,

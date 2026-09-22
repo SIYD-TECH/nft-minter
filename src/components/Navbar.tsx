@@ -25,8 +25,14 @@ export const Navbar: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-lg tracking-wider text-white">BOTCHAIN</span>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                Testnet
+              <span
+                className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded-full border font-bold ${
+                  envConfig.isTestnet
+                    ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                    : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                }`}
+              >
+                {envConfig.isTestnet ? 'TESTNET' : 'MAINNET'}
               </span>
             </div>
             <p className="text-xs text-gray-400">NFT Minter & Gallery</p>
@@ -48,16 +54,30 @@ export const Navbar: React.FC = () => {
 
           {/* Network Active Badge */}
           {isConnected && isCorrectNetwork && (
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-medium">
+            <div
+              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium ${
+                envConfig.isTestnet
+                  ? 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                  : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+              }`}
+            >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span
+                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                    envConfig.isTestnet ? 'bg-amber-400' : 'bg-emerald-400'
+                  }`}
+                ></span>
+                <span
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    envConfig.isTestnet ? 'bg-amber-500' : 'bg-emerald-500'
+                  }`}
+                ></span>
               </span>
               <span>Chain {envConfig.chainId}</span>
             </div>
           )}
 
-          {/* BohrScan Explorer Link */}
+          {/* Block Explorer Link */}
           <a
             href={envConfig.explorerUrl}
             target="_blank"

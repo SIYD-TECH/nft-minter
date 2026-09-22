@@ -106,7 +106,7 @@ export const NFTCard: React.FC<NFTCardProps> = ({ nft, onSelect }) => {
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
             className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-emerald-400 transition"
-            title="View owner on BohrScan"
+            title={`View owner on ${envConfig.explorerName}`}
           >
             <ExternalLink className="w-3.5 h-3.5" />
           </a>

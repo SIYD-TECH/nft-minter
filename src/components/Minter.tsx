@@ -29,7 +29,7 @@ const PRESET_BOTS = [
   },
   {
     name: 'Neon Cortex',
-    desc: 'Autonomous AI synthesis unit connected to Bohr neural layers.',
+    desc: 'Autonomous AI synthesis unit connected to Botchain neural layers.',
     type: 'Cortex AI',
     svg: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect width="400" height="400" fill="%23090b10"/><circle cx="200" cy="200" r="140" fill="%23131326" stroke="%239d4edd" stroke-width="4"/><polygon points="200,120 270,240 130,240" fill="%23240046" stroke="%23c77dff" stroke-width="3"/><circle cx="200" cy="190" r="22" fill="%23e0aaff"/><circle cx="200" cy="190" r="10" fill="%23ffffff"/><line x1="130" y1="240" x2="200" y2="280" stroke="%239d4edd" stroke-width="4"/><line x1="270" y1="240" x2="200" y2="280" stroke="%239d4edd" stroke-width="4"/></svg>`,
   },
@@ -67,7 +67,7 @@ export const Minter: React.FC<MinterProps> = ({ onMintSuccess }) => {
 
   // Form State
   const [name, setName] = useState('Cyber Sentinel #1');
-  const [description, setDescription] = useState('First generation guardian minted on Botchain Testnet.');
+  const [description, setDescription] = useState(`First generation guardian minted on ${envConfig.chainName}.`);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>(PRESET_BOTS[0].svg);
   const [selectedPreset, setSelectedPreset] = useState<number>(0);
@@ -329,7 +329,7 @@ export const Minter: React.FC<MinterProps> = ({ onMintSuccess }) => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-mono mt-2 transition"
                 >
-                  <span>View transaction on BohrScan</span>
+                  <span>View transaction on {envConfig.explorerName}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               )}
