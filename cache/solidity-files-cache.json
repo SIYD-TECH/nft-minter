@@ -1,0 +1,46 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\PC\\.gemini\\antigravity\\scratch\\botchain-nft-minter\\contracts\\BotchainNFT.sol": {
+      "lastModificationDate": 1789387196548,
+      "contentHash": "e6c63ae72bde66ff4c82654300219ebc",
+      "sourceName": "contracts/BotchainNFT.sol",
+      "solcConfig": {
+        "version": "0.8.25",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "BotchainNFT",
+        "IERC165",
+        "IERC721",
+        "IERC721Enumerable",
+        "IERC721Metadata",
+        "IERC721Receiver"
+      ]
+    }
+  }
+}
